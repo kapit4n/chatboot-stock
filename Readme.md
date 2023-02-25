@@ -9,3 +9,5 @@
 - chat boot
 - websocket server
 - Read server/Readme.md to run it
+
+![Server](https://github.com/kapit4n/chatboot-stock/blob/main/view/server-console.png)
