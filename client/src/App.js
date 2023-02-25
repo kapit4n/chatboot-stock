@@ -33,18 +33,17 @@ function App() {
   }, [lastMessage])
 
   const sendMessage = useCallback(() => {
-    console.log(stockInfo)
+    const stockInputCasted = stockInfo.replace("/", "")
     ws.current.send(
       JSON.stringify({ channel: STOCK_ROOM, event: SEND_EVENT_NAME, message: { message_id: (new Date()).getTime, message: stockInfo, sender: userInput } })
     )
+    setStockInfo("")
   }, [ws.current, stockInfo])
-
-  console.log(messages)
 
   return (
     <div className="App">
       <div className="login-box">
-        User: <input onChange={e => setUserInput(e.target.value)} value={userInput} />
+        User: <input onChange={e => setUserInput(e.target.value)} disabled={authenticated} value={userInput} />
         {!authenticated && (
           <button onClick={loginUser}>
             LOGIN
@@ -52,24 +51,29 @@ function App() {
 
         )}
       </div>
-      <ul className='chatroom-box'>
-        {messages.map(m => (
-          <>
-            {m?.message?.sender === userInput ?
-              (<li key={m.message.id} className="chat-post-me">
-                {m?.message?.message}
-              </li>)
-              :
-              (
-                <li key={m.message.id} className="chat-post">
-                  {m?.message?.sender}: {m?.message?.message}
-                </li>)}
-          </>
-
-        ))}
-        <input onChange={e => setStockInfo(e.target.value)} value={stockInfo} />
-        <button onClick={() => sendMessage()}>Send</button>
-      </ul>
+      {authenticated && (
+        <div className="chatroom-container">
+          <ul className='chatroom-box'>
+            {messages.map(m => (
+              <>
+                {m?.message?.sender === userInput ?
+                  (<li key={m.message.id} className="chat-post-me">
+                    {m?.message?.message}
+                  </li>)
+                  :
+                  (
+                    <li key={m.message.id} className="chat-post">
+                      {m?.message?.sender}: {m?.message?.message}
+                    </li>)}
+              </>
+            ))}
+          </ul>
+          <div className="chatroom-actions">
+            <textarea rows="4" onChange={e => setStockInfo(e.target.value)} value={stockInfo} style={{width: "80%", margin: '1rem'}} />
+            <button className="chatroom-actions-button" onClick={() => sendMessage()}>Send</button>
+          </div>
+        </div>
+      )}
     </div >
   );
 }
