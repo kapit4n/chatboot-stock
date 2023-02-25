@@ -11,3 +11,34 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.App {
+  display: flex;
+  flex-direction: row;
+}
+
+.login-box {
+  width: 30%;
+}
+
+.chatroom-box {
+  width: 40%;
+  list-style: none;
+}
+
+.chat-post-me {
+  display: flex;
+  padding: 1rem;
+  justify-content: flex-end;
+  background-color: aquamarine;
+  border: 1px ;
+  margin: 0.5rem;
+}
+
+.chat-post {
+  display: flex;
+  padding: 1rem;
+  justify-content: flex-start;
+  background-color: thistle;
+  margin: 0.5rem;
+}

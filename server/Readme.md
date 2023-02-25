@@ -3,3 +3,9 @@
 
 # Init chat boot
 - go run cmd/chatboot/main.go
+
+# Init Queue proccessor 
+- go run cmd/processor/main.go 
+- go run cmd/processor/main.go 
+
+You can have more than one instance

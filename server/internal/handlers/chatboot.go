@@ -1,22 +1,55 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
 	domain "github.com/kapit4n/chat-ws-go/internal/domain"
+	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+const (
+	AMQP_URL = "amqp://guest:guest@localhost:5672"
 )
 
 func HandleChatBoot(c *websocket.Conn, done *chan struct{}) {
 	defer c.Close()
 	defer close(*done)
+
+	conn, err := amqp.Dial(AMQP_URL)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	ch, err := conn.Channel()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer ch.Close()
+
+	queue, err := ch.QueueDeclare(
+		"stockQueue",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Hour)
+	defer cancel()
 
 	for {
 		_, message, err := c.ReadMessage()
@@ -42,47 +75,21 @@ func HandleChatBoot(c *websocket.Conn, done *chan struct{}) {
 
 			stockAbr := getStockToken(messageInfo, tokenIndex)
 
-			processingMessageJson, err := buildMessage(fmt.Sprintf(CHATBOOTPROCESSINGMESSAGE, stockAbr))
-			c.WriteMessage(1, processingMessageJson)
+			body := stockAbr
 
-			requestUrl := fmt.Sprintf("https://stooq.com/q/l/?s=%s.us&f=sd2t2ohlcv&h&e=json", stockAbr)
-
-			resp, err := http.Get(requestUrl)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			b, err := io.ReadAll(resp.Body)
-
-			var respBody map[string]interface{}
-			var symbols map[string]interface{}
-
-			err = json.Unmarshal(b, &respBody)
+			err = ch.PublishWithContext(ctx,
+				"",
+				queue.Name,
+				false,
+				false,
+				amqp.Publishing{
+					ContentType: "text/plain",
+					Body:        []byte(body),
+				},
+			)
 
 			if err != nil {
-				log.Fatal(err)
-			}
-			symbols = respBody["symbols"].([]interface{})[0].(map[string]interface{})
-
-			if symbols["close"] == nil {
-				processedMessageJson, err := buildMessage(fmt.Sprintf("%s quote is unknow", stockAbr))
-
-				if err != nil {
-					log.Fatal(err)
-				}
-				c.WriteMessage(1, processedMessageJson)
-			} else {
-				stockClosedFloat := symbols["close"].(float64)
-				stockClosed := fmt.Sprintf("%f", stockClosedFloat)
-
-				processedMessageJson, err := buildMessage(fmt.Sprintf("%s quote is $%s per share", stockAbr, stockClosed))
-
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				c.WriteMessage(1, processedMessageJson)
+				fmt.Println(err)
 			}
 		}
 	}
@@ -106,24 +113,13 @@ func getStockToken(messageInfo string, tokenIndex int) string {
 func getMessageInfo(msgInterface interface{}) string {
 
 	var messageInfo string
-	msgMap, _ := msgInterface.(map[string]interface{})
+	msgMap, _ := msgInterface.(domain.DataMessage)
 
-	if msgMap["message"] != nil {
-		messageInfo = msgMap["message"].(string)
+	fmt.Println(msgInterface)
+
+	if msgMap.Message != "" {
+		messageInfo = msgMap.Message
 	}
 
 	return messageInfo
-}
-
-func buildMessage(message string) ([]byte, error) {
-	responseMessage := domain.WebsocketData{
-		Channel: CHANNELNAME,
-		Event:   EVENTNAME,
-		Message: domain.DataMessage{
-			MessageID: strconv.FormatInt(int64(time.Now().Unix()), 10),
-			Message:   message,
-			Sender:    CHATBOOTNAME,
-		},
-	}
-	return json.Marshal(responseMessage)
 }
