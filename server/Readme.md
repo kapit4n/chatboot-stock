@@ -1,4 +1,4 @@
-# Requeriments
+# Requirements
 - golang installed
 - have installed rabbitmq
 
