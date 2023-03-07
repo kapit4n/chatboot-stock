@@ -1,3 +1,7 @@
+# Requeriments
+- golang installed
+- have installed rabbitmq
+
 # Init server
 - go run cmd/chatserver/main.go
 
