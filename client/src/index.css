@@ -26,13 +26,26 @@ code {
   flex-direction: column;
 }
 
-.chatroom-box {
-  width: 100%;
+.user-list {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.user-list li{
+  padding: 1rem;
+  border: 1px solid black;
+}
+
+.chatroom-box {
+  list-style: none;
+  padding-inline-start: 1rem;
+  padding-inline-end: 1rem;
 }
 
 .chatroom-container {
-  width: 70%;
+  width: 80%;
   flex-direction: column;
   justify-content: flex-start;
   background-color: black;
@@ -44,7 +57,7 @@ code {
   justify-content: flex-end;
   background-color: aquamarine;
   border: 1px ;
-  margin: 0.5rem;
+  margin: 0.5rem 0;
 }
 
 .chat-post {
@@ -52,7 +65,11 @@ code {
   padding: 1rem;
   justify-content: flex-start;
   background-color: thistle;
-  margin: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.chat-message {
+  margin: 1rem;
 }
 
 .chatroom-actions {
