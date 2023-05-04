@@ -1,7 +1,8 @@
 const Users = ({ users }) => {
   return (
     <ul className="user-list">
-      {users.map(user => (
+      <h2>Users</h2>
+      {users.map(user => user.name && (
         <li key={user.name} className="user-list-item">{user.name}</li>
       ))}
     </ul>

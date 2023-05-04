@@ -26,18 +26,6 @@ code {
   flex-direction: column;
 }
 
-.user-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  row-gap: 1rem;
-}
-
-.user-list li{
-  padding: 1rem;
-  border: 1px solid black;
-}
-
 .chatroom-box {
   list-style: none;
   padding-inline-start: 1rem;
@@ -79,5 +67,4 @@ code {
 
 .chatroom-actions-button {
   width: 100px;
-  margin: 1rem;
 }

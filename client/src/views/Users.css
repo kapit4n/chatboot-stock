@@ -1,0 +1,10 @@
+.user-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.user-list li{
+  border: 1px solid black;
+}
