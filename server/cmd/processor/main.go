@@ -102,6 +102,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+
 			symbols = respBody["symbols"].([]interface{})[0].(map[string]interface{})
 
 			if symbols["close"] == nil {

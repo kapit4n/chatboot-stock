@@ -4,6 +4,8 @@ type WebsocketData struct {
 	Channel string      `json:"channel"`
 	Event   string      `json:"event"`
 	Message DataMessage `json:"message"`
+	Rooms   []RoomInfo  `json:"rooms"`
+	Users   []UserInfo  `json:"users"`
 }
 
 type DataMessage struct {
@@ -17,4 +19,9 @@ type DataMessage struct {
 type UserInfo struct {
 	Name string `json:"name"`
 	UUID string `json:"uuid"`
+}
+
+type RoomInfo struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }

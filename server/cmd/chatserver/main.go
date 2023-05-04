@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
@@ -32,19 +33,23 @@ func main() {
 
 	m := melody.New()
 	m.Config.MaxMessageSize = 2000
-	m.Upgrader.CheckOrigin = func(r *http.Request) bool { return true } // origni check
+	m.Upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	dataUsers := make(map[*melody.Session]*domain.UserInfo)
+	rooms := make([]domain.RoomInfo, 3)
+
+	rooms = append(rooms, domain.RoomInfo{Name: "General", Description: "The general goom where all people are located"})
+	rooms = append(rooms, domain.RoomInfo{Name: "stockToom", Description: "Stock room"})
 
 	lock := new(sync.Mutex)
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "chat.html", nil)
+		c.String(http.StatusOK, "Main Page")
 	})
 
-	r.GET("sw.js", func(c *gin.Context) {
-		c.Header("Content-Type", "application/javascript")
-		c.HTML(http.StatusOK, "sw.js", nil)
+	r.GET("/hello", func(c *gin.Context) {
+		c.String(http.StatusOK, "hello world")
 	})
+
 	r.GET("/ws", func(c *gin.Context) {
 		fmt.Print("REACH HERE")
 		err := m.HandleRequest(c.Writer, c.Request)
@@ -53,25 +58,46 @@ func main() {
 		}
 	})
 
-	r.GET("/uuid", func(c *gin.Context) {
-		token, _ := uuid.NewUUID()
-		result := map[string]interface{}{
-			"uuid": token.String(),
+	r.GET("/users", func(c *gin.Context) {
+		fmt.Println(dataUsers)
+
+		for k, v := range dataUsers {
+			fmt.Println(k)
+			fmt.Println(v)
 		}
-		c.JSON(http.StatusOK, result)
+
+		b, err := json.Marshal(&dataUsers)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, b)
+	})
+
+	r.GET("/uuid", func(c *gin.Context) {
+		uuid := getUUID()
+		c.JSON(http.StatusOK, uuid)
 	})
 
 	m.HandleConnect(func(s *melody.Session) {
-		handlers.HandleConnection(s, m, lock, dataUsers)
+		handlers.HandleConnection(s, m, lock, dataUsers, rooms)
 	})
 
 	m.HandleDisconnect(func(s *melody.Session) {
-		handlers.HandleDisconnect(s, m, lock, dataUsers)
+		handlers.HandleDisconnect(s, m, lock, dataUsers, rooms)
 	})
 
 	m.HandleMessage(func(s *melody.Session, msg []byte) {
-		handlers.HandleMessage(s, m, lock, dataUsers, msg)
+		handlers.HandleMessage(s, m, lock, dataUsers, msg, rooms)
 	})
 
 	_ = r.Run(":8080")
+}
+
+func getUUID() map[string]interface{} {
+	token, _ := uuid.NewUUID()
+	result := map[string]interface{}{
+		"uuid": token.String(),
+	}
+	return result
 }

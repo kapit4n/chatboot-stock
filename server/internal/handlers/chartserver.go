@@ -18,7 +18,7 @@ var (
 	store = sessions.NewCookieStore(key)
 )
 
-func HandleConnection(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUsers map[*melody.Session]*domain.UserInfo) {
+func HandleConnection(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUsers map[*melody.Session]*domain.UserInfo, rooms []domain.RoomInfo) {
 	lock.Lock()
 
 	var token string
@@ -35,7 +35,15 @@ func HandleConnection(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dat
 		UUID: token,
 	}
 
+	dataUsers[s] = &chatUser
+
+	for k, v := range dataUsers {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+
 	fmt.Println(chatUser)
+	fmt.Println(dataUsers)
 
 	s.Set("chat-user", chatUser)
 
@@ -43,18 +51,26 @@ func HandleConnection(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dat
 		Message: strings.TrimLeft(name, " ") + " join stockRoom",
 		Sender:  chatUser.Name,
 	}
+
 	lock.Unlock()
+
+	var users = make([]domain.UserInfo, 1)
+	for _, v := range dataUsers {
+		users = append(users, *v)
+	}
 
 	data := domain.WebsocketData{
 		Channel: "stockRoom",
 		Event:   "status",
 		Message: message,
+		Rooms:   rooms,
+		Users:   users,
 	}
 	b, _ := json.Marshal(data)
 	_ = m.Broadcast(b)
 }
 
-func HandleDisconnect(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUsers map[*melody.Session]*domain.UserInfo) {
+func HandleDisconnect(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUsers map[*melody.Session]*domain.UserInfo, rooms []domain.RoomInfo) {
 	lock.Lock()
 
 	fmt.Println(dataUsers)
@@ -70,20 +86,39 @@ func HandleDisconnect(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dat
 	}
 	lock.Unlock()
 
+	var users = make([]domain.UserInfo, 1)
+	for _, v := range dataUsers {
+		users = append(users, *v)
+	}
+
 	data := domain.WebsocketData{
 		Channel: CHANNELNAME,
 		Event:   "status",
 		Message: message,
+		Rooms:   rooms,
+		Users:   users,
 	}
 	b, _ := json.Marshal(data)
 	_ = m.Broadcast(b)
 }
 
-func HandleMessage(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUsers map[*melody.Session]*domain.UserInfo, msg []byte) {
+func HandleMessage(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUsers map[*melody.Session]*domain.UserInfo, msg []byte, rooms []domain.RoomInfo) {
 	var WsData domain.WebsocketData
+
+	fmt.Println(dataUsers)
+
+	for k, v := range dataUsers {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
 
 	if err := json.Unmarshal(msg, &WsData); err != nil {
 		panic(err)
+	}
+
+	var users = make([]domain.UserInfo, 1)
+	for _, v := range dataUsers {
+		users = append(users, *v)
 	}
 
 	if WsData.Channel == ROOMNAME {
@@ -101,6 +136,8 @@ func HandleMessage(s *melody.Session, m *melody.Melody, lock *sync.Mutex, dataUs
 				Channel: WsData.Channel,
 				Event:   WsData.Event,
 				Message: message,
+				Rooms:   rooms,
+				Users:   users,
 			}
 			b, _ := json.Marshal(data)
 			_ = m.Broadcast(b)
