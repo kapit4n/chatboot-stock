@@ -38,7 +38,7 @@ func main() {
 	rooms := make([]domain.RoomInfo, 3)
 
 	rooms = append(rooms, domain.RoomInfo{Name: "General", Description: "The general goom where all people are located"})
-	rooms = append(rooms, domain.RoomInfo{Name: "stockToom", Description: "Stock room"})
+	rooms = append(rooms, domain.RoomInfo{Name: "stockRoom", Description: "Stock room"})
 
 	lock := new(sync.Mutex)
 
