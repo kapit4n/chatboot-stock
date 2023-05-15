@@ -1,0 +1,9 @@
+.room-link {
+  color: white;
+}
+
+.room-link-selected {
+  color: white;
+  font-weight: bold;
+}
+

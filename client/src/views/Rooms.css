@@ -1,0 +1,10 @@
+.rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: white;
+}
+
+.rooms h2 {
+  color: white;
+}

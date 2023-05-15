@@ -1,11 +1,15 @@
+import "./Users.css"
+
 const Users = ({ users }) => {
   return (
-    <ul className="user-list">
+    <div className="users-list-container">
       <h2>Users</h2>
-      {users.map(user => user.name && (
-        <li key={user.name} className="user-list-item">{user.name}</li>
-      ))}
-    </ul>
+      <ul className="user-list">
+        {users.map(user => user.name && (
+          <li key={user.name} className="user-list-item">{user.name}</li>
+          ))}
+      </ul>
+    </div>
   )
 }
 

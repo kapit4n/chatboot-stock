@@ -25,6 +25,7 @@ function App() {
   const [lastMessage, setLastMessage] = useState(null)
   const [userInput, setUserInput] = useState(null)
   const [authenticated, setAuthenticated] = useState(false)
+  const [selectedRoom, setSelectedRoom] = useState("")
 
   const loginUser = () => {
     const timeStamp = new Date().getTime()
@@ -46,6 +47,7 @@ function App() {
       setLastMessage(message)
       setRooms(rooms)
       setUsers(users)
+      setSelectedRoom(rooms[0])
     })
   }
 
@@ -63,17 +65,17 @@ function App() {
   }, [ws.current, stockInfo])
 
   return (
-    <div>
+    <div className="app-container">
       {authenticated && (
         <ChatContainer>
           <LeftSide>
-            <Rooms rooms={rooms} />
+            <Rooms rooms={rooms} setSelectedRoom={setSelectedRoom} roomSelected={selectedRoom} />
             <Users users={users} />
           </LeftSide>
           <MainContainer>
             <Search />
             <Messages messages={messages} />
-            <ChatInput sendMessage={sendMessage} message={stockInfo} setMessage={setStockInfo}/>
+            <ChatInput sendMessage={sendMessage} message={stockInfo} setMessage={setStockInfo} />
           </MainContainer>
         </ChatContainer>
       )}
@@ -84,11 +86,11 @@ function App() {
             <input onChange={e => setUserInput(e.target.value)} value={userInput} />
             <button onClick={loginUser}>
               LOGIN
-          </button>
+            </button>
           </>
         )}
       </div>
-      
+
     </div >
   );
 }

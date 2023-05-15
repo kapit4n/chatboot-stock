@@ -1,4 +1,5 @@
 import MessageItem from "./MessageItem"
+import "./Messages.css"
 
 export const Messages = ({ messages }) => {
   return (

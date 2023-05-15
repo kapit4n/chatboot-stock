@@ -1,0 +1,15 @@
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-info-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.message-info-title span{
+  color: rgb(77, 75, 75);
+}
