@@ -2,7 +2,7 @@
 - client application to send messages/request to server for stock info
 - Read client/Readme.md to run it
 
-![Dashboard](https://github.com/kapit4n/chatboot-stock/blob/main/view/main-page.png)
+![Dashboard](https://github.com/kapit4n/chatboot-stock/blob/main/view/chatboot-stock-home.png)
 
 
 # SERVER
